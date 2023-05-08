@@ -1,0 +1,63 @@
+# This is a set of https://taskfile.dev/ utility tasks for setting up an environment.
+# LICENSE: MIT by Sam Phinizy
+version: '3'
+
+tasks:
+  homebrew:
+    desc: Installs Homebrew
+    cmds:
+      - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    status:
+      - brew --version
+  pyenv:
+    desc: Installs pyenv
+    cmds:
+      - brew install pyenv
+    status:
+      - pyenv --version
+  yq:
+    desc: Installs yq
+    cmds:
+      - brew install yq
+    status:
+      - yq --version
+  orbstack:
+    desc: Install Orbstack a docker desktop replacement
+    cmds:
+      - brew install orbstack
+    status:
+      - orbctl --version
+    preconditions:
+      - brew --version
+  python-version:
+    desc: Installs project specific version of Python using Pyenv
+    cmds:
+      - pyenv install -s $(yq -oy '.project.python' pyproject.toml)
+    preconditions:
+      - test -f pyproject.toml
+      - sh: '$(yq -oy '.project.python' pyproject.toml)'
+        msg: "Can't find 'project.python' in pyporject.toml"
+  poetry:
+    desc: Installs poetry globally.
+    cmds:
+      - curl -sSL https://install.python-poetry.org | python3 -
+  create-project-venv:
+    desc: Creates the project venv in pyenv
+    cmds:
+      - pyenv virtualenv $(yq -oy '.project.python' pyproject.toml) $(yq -oy '.project.name' pyproject.toml)-venv
+      - pyenv local $(yq -oy '.project.name' pyproject.toml)-venv
+    status:
+      - test -f $HOME/.pyenv/versions/gaming-servers-venv/bin/python
+    preconditions:
+      - test -f pyproject.toml
+      - sh: '$(yq -oy '.project.python' pyproject.toml)'
+        msg: "Can't find 'project.python' in pyporject.toml"
+      - sh: '$(yq -oy '.project.name' pyproject.toml)'
+        msg: "Can't find 'project.name' in pyporject.toml"
+  project-requirements:
+    desc: Installs all of the project requirements
+    cmds:
+      - poetry install
+    status:
+      - poetry --version
+      - test -f poetry.lock

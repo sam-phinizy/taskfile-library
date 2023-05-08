@@ -1,0 +1,17 @@
+version: '3'
+
+includes:
+  install: ./install-utils.yml
+
+tasks:
+  up:
+    desc: Sets up the project and install all the requirements.
+    cmds:
+      - task: install:homebrew
+      - task: install:poetry
+      - task: install:pyenv
+      - task: install:yq
+      - task: install:python-version
+      - task: install:create-project-venv
+      - task: install:project-install-requirements
+      - task: install:orbstack
