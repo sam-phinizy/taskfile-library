@@ -1,6 +1,7 @@
 # This is a set of https://taskfile.dev/ utility tasks for setting up an environment.
 # LICENSE: MIT by Sam Phinizy
 version: '3'
+task-utils-version: "2023-05-09T00:48:59Z"
 
 tasks:
   homebrew:
@@ -8,56 +9,57 @@ tasks:
     cmds:
       - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     status:
-      - brew --version
+      - command -v brew
   pyenv:
+    deps: [homebrew]
     desc: Installs pyenv
     cmds:
-      - brew install pyenv
+      - brew install pyenv pyenv-virtualenv
     status:
-      - pyenv --version
+      - command -v pyenv
   yq:
+    deps: [homebrew]
     desc: Installs yq
     cmds:
       - brew install yq
     status:
-      - yq --version
+      - command -v yq
   orbstack:
+    deps: [homebrew]
     desc: Install Orbstack a docker desktop replacement
     cmds:
       - brew install orbstack
     status:
       - orbctl --version
-    preconditions:
-      - brew --version
   python-version:
+    deps: [yq, pyenv]
     desc: Installs project specific version of Python using Pyenv
     cmds:
       - pyenv install -s $(yq -oy '.project.python' pyproject.toml)
-    preconditions:
-      - test -f pyproject.toml
-      - sh: '$(yq -oy '.project.python' pyproject.toml)'
-        msg: "Can't find 'project.python' in pyporject.toml"
   poetry:
-    desc: Installs poetry globally.
+    deps: [pyenv]
+    desc: Installs poetry
     cmds:
       - curl -sSL https://install.python-poetry.org | python3 -
+    status:
+      - command -v poetry
   create-project-venv:
+    deps: [poetry, python-version]
     desc: Creates the project venv in pyenv
     cmds:
       - pyenv virtualenv $(yq -oy '.project.python' pyproject.toml) $(yq -oy '.project.name' pyproject.toml)-venv
       - pyenv local $(yq -oy '.project.name' pyproject.toml)-venv
     status:
       - test -f $HOME/.pyenv/versions/gaming-servers-venv/bin/python
-    preconditions:
-      - test -f pyproject.toml
-      - sh: '$(yq -oy '.project.python' pyproject.toml)'
-        msg: "Can't find 'project.python' in pyporject.toml"
-      - sh: '$(yq -oy '.project.name' pyproject.toml)'
-        msg: "Can't find 'project.name' in pyporject.toml"
+  create-task-python-venv:
+    deps: [pyenv]
+    desc: Installs a python venv specific to running helper scripts
+    cmds:
+      - pyenv install -s 3.11
+      - pyenv virtualenv 3.11 task-file-custom-venv
   project-requirements:
+    deps: [poetry, orbstack]
     desc: Installs all of the project requirements
     cmds:
-      - poetry install
-    status:
-      - poetry --version
-      - test -f poetry.lock
+      - task: create-project-venv
+      - poetry install --sync
