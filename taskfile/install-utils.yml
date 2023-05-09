@@ -51,12 +51,17 @@ tasks:
       - pyenv local $(yq -oy '.project.name' pyproject.toml)-venv
     status:
       - test -f $HOME/.pyenv/versions/gaming-servers-venv/bin/python
+  build-task-python-venv:
+    desc: Install venv
+    cmds:
+      - pyenv virtualenv 3.11 task-file-custom-venv
+    status:
+      - pyenv virtualenvs | grep task-file-custom-venv
   create-task-python-venv:
     deps: [pyenv]
     desc: Installs a python venv specific to running helper scripts
     cmds:
       - pyenv install -s 3.11
-      - pyenv virtualenv 3.11 task-file-custom-venv
   project-requirements:
     deps: [poetry, orbstack]
     desc: Installs all of the project requirements
