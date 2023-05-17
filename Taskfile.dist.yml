@@ -1,0 +1,13 @@
+version: '3'
+
+includes:
+  install: ~/.tasks/install-utils.yml
+  meta: ~/.tasks/meta-utils.yml
+
+tasks:
+  up:
+    desc: Sets up the project
+    cmds:
+      - task: create-task-python-venv
+      - task: project-install-requirements
+
