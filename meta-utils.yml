@@ -1,0 +1,16 @@
+# This is a set of https://taskfile.dev/ utility tasks for setting up an environment.
+# LICENSE: MIT by Sam Phinizy
+version: '3'
+
+
+tasks:
+  update:
+    desc: "Updates the taskfile-library"
+    cmds:
+      - pushd ~/.tasks
+      - git pull
+      - popd
+    status:
+      - test -d ~/.tasks
+      - command -v git
+    

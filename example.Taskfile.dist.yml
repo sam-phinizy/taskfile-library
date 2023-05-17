@@ -1,7 +1,8 @@
 version: '3'
 
 includes:
-  install: ./install-utils.yml
+  install: ~/.tasks/install-utils.yml
+  meta: ~/.tasks/meta-utils.yml
 
 tasks:
   up:

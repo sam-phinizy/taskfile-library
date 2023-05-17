@@ -1,7 +1,6 @@
 # This is a set of https://taskfile.dev/ utility tasks for setting up an environment.
 # LICENSE: MIT by Sam Phinizy
 version: '3'
-task-utils-version: "2023-05-09T00:48:59Z"
 
 tasks:
   homebrew:
