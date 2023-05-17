@@ -7,6 +7,4 @@ tasks:
   update:
     desc: "Updates the taskfile-library"
     cmds:
-      - pushd ~/.tasks
-      - git pull
-      - popd
+      - echo 1111
